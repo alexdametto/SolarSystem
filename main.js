@@ -1,3 +1,127 @@
+const SUN = {
+  name: "Sun",
+  texture: "./sun.jpg",
+  radius: 100,
+  width: 30,
+  height: 30,
+  translation: {
+    x: 0,
+    y: 0,
+    z: -700,
+  },
+  rotationSpeed: 0.0005,
+  side: true,
+  material: new THREE.MeshBasicMaterial(),
+};
+
+const EARTH = {
+  name: "Earth",
+  texture: "./earth.jpg",
+  radius: 30,
+  width: 30,
+  height: 30,
+  translation: {
+    x: 150,
+    y: 0,
+    z: 150,
+  },
+  rotationSpeed: 0.0008,
+  side: false,
+  material: new THREE.MeshPhongMaterial(),
+};
+
+const MOON = {
+  name: "Moon",
+  texture: "./moon.jpg",
+  radius: 15,
+  width: 30,
+  height: 30,
+  translation: {
+    x: 50,
+    y: 0,
+    z: 50,
+  },
+  rotationSpeed: 0.001,
+  side: false,
+  material: new THREE.MeshPhongMaterial(),
+};
+
+const MARS = {
+  name: "Mars",
+  texture: "./mars.jpg",
+  radius: 30,
+  width: 30,
+  height: 30,
+  translation: {
+    x: -300,
+    y: 0,
+    z: 300,
+  },
+  rotationSpeed: 0.001,
+  side: false,
+  material: new THREE.MeshPhongMaterial(),
+};
+
+const JUPITER = {
+  name: "Jupiter",
+  texture: "./jupiter.jpg",
+  radius: 30,
+  width: 30,
+  height: 30,
+  translation: {
+    x: -400,
+    y: 0,
+    z: -400,
+  },
+  rotationSpeed: 0.001,
+  side: false,
+  material: new THREE.MeshPhongMaterial(),
+};
+
+const GANYMEDE = {
+  name: "Ganymede",
+  texture: "./ganymede.jpg",
+  radius: 15,
+  width: 30,
+  height: 30,
+  translation: {
+    x: 50,
+    y: 0,
+    z: 50,
+  },
+  rotationSpeed: 0.001,
+  side: false,
+  material: new THREE.MeshPhongMaterial(),
+};
+
+const buildMaterial = (rotateAround, objectDetails) => {
+  const geometry = new THREE.SphereGeometry(
+    objectDetails.radius,
+    objectDetails.width,
+    objectDetails.height
+  );
+  const material = objectDetails.material;
+  material.map = THREE.ImageUtils.loadTexture(objectDetails.texture);
+  material.side = objectDetails.side;
+  const object = new THREE.Mesh(geometry, material);
+  object.matrixAutoUpdate = false;
+  rotateAround.add(object);
+  object.matrix = new THREE.Matrix4().makeTranslation(
+    objectDetails.translation.x,
+    objectDetails.translation.y,
+    objectDetails.translation.z
+  );
+
+  return object;
+};
+
+const rotate = (material, objectDetails, deltaTime) => {
+  var rotation = new THREE.Matrix4().makeRotationY(
+    objectDetails.rotationSpeed * deltaTime
+  );
+  material.matrix = material.matrix.multiply(rotation);
+};
+
 window.onload = function () {
   // Create a scene
   var scene = new THREE.Scene();
@@ -24,14 +148,7 @@ window.onload = function () {
   scene.add(ligth);
 
   // Create Sun
-  var geometrySole = new THREE.SphereGeometry(100, 30, 30);
-  var materialSole = new THREE.MeshBasicMaterial();
-  materialSole.map = THREE.ImageUtils.loadTexture("./sun.jpg");
-  materialSole.side = true;
-  var sole = new THREE.Mesh(geometrySole, materialSole);
-  sole.matrixAutoUpdate = false;
-  scene.add(sole);
-  sole.matrix = new THREE.Matrix4().makeTranslation(0, 0, -700);
+  const sunObject = buildMaterial(scene, SUN);
 
   // Sun light
   var pointLight = new THREE.PointLight(0xffffff, 2.5, 0);
@@ -39,83 +156,45 @@ window.onload = function () {
   scene.add(pointLight);
 
   // Create Earth
-  var geometryTerra = new THREE.SphereGeometry(30, 30, 30);
-  var materialTerra = new THREE.MeshPhongMaterial();
-  materialTerra.map = THREE.ImageUtils.loadTexture("./earth.jpg");
-  materialTerra.shading = THREE.SmoothShading;
-  var terra = new THREE.Mesh(geometryTerra, materialTerra);
-  terra.matrixAutoUpdate = false;
-  sole.add(terra); // la Terra ruota attorno al SOLE
-  terra.matrix = new THREE.Matrix4().makeTranslation(150, 0, 150);
+  const earthObject = buildMaterial(sunObject, EARTH);
 
   // Create Moon
-  var geometryLuna = new THREE.SphereGeometry(15, 30, 30);
-  var materialLuna = new THREE.MeshPhongMaterial();
-  materialLuna.map = THREE.ImageUtils.loadTexture("./moon.jpg");
-  var luna = new THREE.Mesh(geometryLuna, materialLuna);
-  luna.matrixAutoUpdate = false;
-  terra.add(luna); // La luna ruota attorno alla Terra
-  luna.matrix = new THREE.Matrix4().makeTranslation(50, 0, 50);
+  const moonObject = buildMaterial(earthObject, MOON);
 
   // Create Mars
-  var geometryMarte = new THREE.SphereGeometry(30, 30, 30);
-  var materialMarte = new THREE.MeshPhongMaterial();
-  materialMarte.map = THREE.ImageUtils.loadTexture("./mars.jpg");
-  var marte = new THREE.Mesh(geometryMarte, materialMarte);
-  marte.matrixAutoUpdate = false;
-  sole.add(marte); // Marte ruota attorno al Sole
-  marte.matrix = new THREE.Matrix4().makeTranslation(-300, 0, 300);
+  const marsObject = buildMaterial(sunObject, MARS);
 
   // Create Jupiter
-  var geometryGiove = new THREE.SphereGeometry(30, 30, 30);
-  var materialGiove = new THREE.MeshPhongMaterial();
-  materialGiove.map = THREE.ImageUtils.loadTexture("./jupiter.jpg");
-  var giove = new THREE.Mesh(geometryGiove, materialGiove);
-  giove.matrixAutoUpdate = false;
-  sole.add(giove); // Giove ruota attorno al Sole
-  giove.matrix = new THREE.Matrix4().makeTranslation(-400, 0, -400);
+  const jupiterObject = buildMaterial(sunObject, JUPITER);
 
   // create Ganymede
-  var geometryGanimede = new THREE.SphereGeometry(15, 30, 30);
-  var materialGanimede = new THREE.MeshPhongMaterial();
-  materialGanimede.map = THREE.ImageUtils.loadTexture("./ganymede.jpg");
-  var ganimede = new THREE.Mesh(geometryGanimede, materialGanimede);
-  ganimede.matrixAutoUpdate = false;
-  giove.add(ganimede); // Ganimede ruota attorno a Giove
-  ganimede.matrix = new THREE.Matrix4().makeTranslation(50, 0, 50);
+  const ganymedeObject = buildMaterial(jupiterObject, GANYMEDE);
 
   // "render" function
   var render = function () {
     var now = new Date();
-    var dt = now - (render.time || now);
+    var deltaTime = now - (render.time || now);
     render.time = now;
 
     // Rotate Sun on itself
-    var rot = new THREE.Matrix4().makeRotationY(0.0005 * dt);
-    sole.matrix = sole.matrix.multiply(rot);
+    rotate(sunObject, SUN, deltaTime);
 
     // Rotate Earth on itself
-    var rot_terra = new THREE.Matrix4().makeRotationY(0.0008 * dt);
-    terra.matrix = terra.matrix.multiply(rot_terra);
+    rotate(earthObject, EARTH, deltaTime);
 
     // Rotate Moon on itself
-    var rot_luna = new THREE.Matrix4().makeRotationY(0.001 * dt);
-    luna.matrix = luna.matrix.multiply(rot_luna);
+    rotate(moonObject, MOON, deltaTime);
 
     // Rotate Mars on itself
-    var rot_marte = new THREE.Matrix4().makeRotationY(0.001 * dt);
-    marte.matrix = marte.matrix.multiply(rot_marte);
+    rotate(marsObject, MARS, deltaTime);
 
-    // Rotate Jupyter on itself
-    var rot_giove = new THREE.Matrix4().makeRotationY(0.001 * dt);
-    giove.matrix = giove.matrix.multiply(rot_giove);
+    // Rotate Jupiter on itself
+    rotate(jupiterObject, JUPITER, deltaTime);
 
     // Rotate Ganymede on itself
-    var rot_ganimede = new THREE.Matrix4().makeRotationY(0.001 * dt);
-    ganimede.matrix = ganimede.matrix.multiply(rot_ganimede);
+    rotate(ganymedeObject, GANYMEDE, deltaTime);
 
     renderer.render(scene, camera);
-
     requestAnimationFrame(render);
   };
 
