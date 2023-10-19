@@ -1,0 +1,23 @@
+---
+services:
+  solar-system:
+    container_name: solar-system
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3001:80"
+    restart: always
+    networks:
+      - solar-system-net
+    labels:
+      traefik.enable: "true"
+      traefik.docker.network: "solar-system-net"
+      traefik.http.services.solar-system.loadbalancer.server.port: "80"
+      traefik.http.routers.solar-system.rule: "Host(`solarsystem.alexdametto.dev`)"
+      traefik.http.routers.solar-system.entrypoints: "websecure" # websecure = 443 (HTTPS)
+      traefik.http.routers.solar-system.tls: "true"
+      traefik.http.routers.solar-system.tls.certresolver: "production"
+networks:
+  solar-system-net:
+    name: solar-system-net
